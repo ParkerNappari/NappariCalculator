@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scientific Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #2a2f3d;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #b388ff;
+    --text: #e8eaf0;
+    --text-dim: #5a6070;
+    --btn-num: #181c24;
+    --btn-op: #1a1f2e;
+    --btn-fn: #141820;
+    --btn-eq: #003a45;
+    --glow: 0 0 12px rgba(0,229,255,0.35);
+    --glow2: 0 0 12px rgba(255,107,53,0.35);
+  }
+
+  body {
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Share Tech Mono', monospace;
+    background-image:
+      radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(179,136,255,0.04) 0%, transparent 50%);
+  }
+
+  .calc-wrapper {
+    position: relative;
+    padding: 2px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(179,136,255,0.1), rgba(255,107,53,0.1));
+    box-shadow: 0 0 60px rgba(0,229,255,0.1), 0 30px 80px rgba(0,0,0,0.6);
+    animation: fadeIn 0.6s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .calc {
+    background: var(--surface);
+    border-radius: 19px;
+    padding: 24px;
+    width: 380px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Header */
+  .calc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .calc-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .mode-badge {
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: var(--accent2);
+    opacity: 0.6;
+    text-transform: uppercase;
+    font-family: 'Orbitron', sans-serif;
+  }
+
+  /* Display */
+  .display {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,229,255,0.03) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .display-history {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: right;
+    min-height: 16px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .display-main {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.1;
+    transition: color 0.15s;
+    letter-spacing: 1px;
+  }
+  .display-main.error { color: var(--accent2); font-size: 20px; }
+  .display-main.result { color: var(--accent); }
+
+  /* Angle mode toggle */
+  .angle-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .angle-btn {
+    flex: 1;
+    padding: 5px 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-transform: uppercase;
+  }
+  .angle-btn.active {
+    background: rgba(0,229,255,0.08);
+    border-color: var(--accent);
+    color: var(--accent);
+    box-shadow: var(--glow);
+  }
+
+  /* Button Grid */
+  .btn-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+  }
+
+  /* Buttons */
+  .btn {
+    position: relative;
+    padding: 0;
+    height: 52px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--btn-num);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn sub {
+    font-size: 8px;
+    color: var(--text-dim);
+    letter-spacing: 0px;
+    line-height: 1;
+    margin-top: -1px;
+  }
+  .btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,0);
+    transition: background 0.12s;
+    border-radius: inherit;
+  }
+  .btn:active::after { background: rgba(255,255,255,0.07); }
+
+  .btn:hover {
+    border-color: rgba(90,96,112,0.8);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  /* Button variants */
+  .btn.fn {
+    background: var(--btn-fn);
+    color: var(--accent3);
+    font-size: 12px;
+    border-color: rgba(179,136,255,0.15);
+  }
+  .btn.fn:hover { border-color: var(--accent3); box-shadow: 0 0 10px rgba(179,136,255,0.2); }
+
+  .btn.op {
+    background: var(--btn-op);
+    color: var(--accent);
+    border-color: rgba(0,229,255,0.15);
+    font-size: 18px;
+  }
+  .btn.op:hover { border-color: var(--accent); box-shadow: var(--glow); }
+
+  .btn.eq {
+    background: var(--btn-eq);
+    color: var(--accent);
+    border-color: rgba(0,229,255,0.4);
+    font-size: 22px;
+    font-weight: bold;
+    box-shadow: inset 0 0 20px rgba(0,229,255,0.06);
+  }
+  .btn.eq:hover {
+    background: rgba(0,229,255,0.12);
+    border-color: var(--accent);
+    box-shadow: var(--glow), 0 4px 16px rgba(0,229,255,0.15);
+  }
+
+  .btn.clear {
+    background: #1a1218;
+    color: var(--accent2);
+    border-color: rgba(255,107,53,0.2);
+  }
+  .btn.clear:hover { border-color: var(--accent2); box-shadow: var(--glow2); }
+
+  .btn.num { font-size: 18px; }
+  .btn.zero { }
+
+  /* Ripple */
+  .ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+    transform: scale(0);
+    animation: ripple 0.4s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes ripple {
+    to { transform: scale(4); opacity: 0; }
+  }
+
+  /* Result flash */
+  @keyframes resultFlash {
+    0% { color: var(--accent); }
+    100% { color: var(--text); }
+  }
+
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+</style>
+</head>
+<body>
+
+<div class="calc-wrapper">
+  <div class="calc">
+    <div class="calc-header">
+      <span class="calc-title">SCI · CALC</span>
+      <span class="mode-badge" id="modeLabel">DEG</span>
+    </div>
+
+    <div class="display">
+      <div class="display-history" id="history"></div>
+      <div class="display-main" id="mainDisplay">0</div>
+    </div>
+
+    <div class="angle-row">
+      <button class="angle-btn active" id="degBtn" onclick="setAngle('deg')">DEG</button>
+      <button class="angle-btn" id="radBtn" onclick="setAngle('rad')">RAD</button>
+      <button class="angle-btn" id="gradBtn" onclick="setAngle('grad')">GRAD</button>
+    </div>
+
+    <div class="btn-grid">
+      <!-- Row 1: Functions -->
+      <button class="btn fn" onclick="inputFn('sin(')">sin<sub>θ</sub></button>
+      <button class="btn fn" onclick="inputFn('cos(')">cos<sub>θ</sub></button>
+      <button class="btn fn" onclick="inputFn('tan(')">tan<sub>θ</sub></button>
+      <button class="btn fn" onclick="inputFn('log(')">log</button>
+      <button class="btn fn" onclick="inputFn('ln(')">ln</button>
+
+      <!-- Row 2: Functions -->
+      <button class="btn fn" onclick="inputFn('asin(')">sin⁻¹</button>
+      <button class="btn fn" onclick="inputFn('acos(')">cos⁻¹</button>
+      <button class="btn fn" onclick="inputFn('atan(')">tan⁻¹</button>
+      <button class="btn fn" onclick="inputFn('sqrt(')">√</button>
+      <button class="btn fn" onclick="inputFn('^')">xʸ</button>
+
+      <!-- Row 3: Functions -->
+      <button class="btn fn" onclick="inputFn('pi')">π</button>
+      <button class="btn fn" onclick="inputFn('e')">e</button>
+      <button class="btn fn" onclick="inputFn('abs(')">|x|</button>
+      <button class="btn fn" onclick="inputFn('(')">(</button>
+      <button class="btn fn" onclick="inputFn(')')">)</button>
+
+      <!-- Row 4: Clear + operators -->
+      <button class="btn clear" onclick="allClear()">AC</button>
+      <button class="btn clear" onclick="backspace()">⌫</button>
+      <button class="btn fn" onclick="inputFn('%')">%</button>
+      <button class="btn op" onclick="inputFn('/')">÷</button>
+      <button class="btn fn" onclick="toggleSign()">±</button>
+
+      <!-- Row 5: Numbers + × -->
+      <button class="btn num" onclick="inputNum('7')">7</button>
+      <button class="btn num" onclick="inputNum('8')">8</button>
+      <button class="btn num" onclick="inputNum('9')">9</button>
+      <button class="btn op" onclick="inputFn('*')">×</button>
+      <button class="btn fn" onclick="inputFn('x²')">x²</button>
+
+      <!-- Row 6: Numbers + − -->
+      <button class="btn num" onclick="inputNum('4')">4</button>
+      <button class="btn num" onclick="inputNum('5')">5</button>
+      <button class="btn num" onclick="inputNum('6')">6</button>
+      <button class="btn op" onclick="inputFn('-')">−</button>
+      <button class="btn fn" onclick="inputFn('1/x')">1/x</button>
+
+      <!-- Row 7: Numbers + + -->
+      <button class="btn num" onclick="inputNum('1')">1</button>
+      <button class="btn num" onclick="inputNum('2')">2</button>
+      <button class="btn num" onclick="inputNum('3')">3</button>
+      <button class="btn op" onclick="inputFn('+')">+</button>
+      <button class="btn fn" onclick="factorial()">n!</button>
+
+      <!-- Row 8: 0, dot, = -->
+      <button class="btn num" onclick="inputNum('0')" style="grid-column: span 2;">0</button>
+      <button class="btn num" onclick="inputDot()">.</button>
+      <button class="btn eq" onclick="calculate()">=</button>
+      <button class="btn fn" onclick="memoryClear()" style="color:#5a6070; font-size:11px;">MC</button>
+
+      <!-- Row 9: Memory -->
+      <button class="btn fn" onclick="memoryRecall()" style="font-size:11px;">MR</button>
+      <button class="btn fn" onclick="memoryAdd()" style="font-size:11px;">M+</button>
+      <button class="btn fn" onclick="memorySub()" style="font-size:11px;">M−</button>
+      <button class="btn fn" onclick="memoryStore()" style="font-size:11px;">MS</button>
+      <button class="btn fn" onclick="inputFn('EE')">EE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ─── State ────────────────────────────────────────────────────
+  let expression = '';
+  let justEvaluated = false;
+  let angleMode = 'deg'; // deg | rad | grad
+  let memory = 0;
+
+  const display = document.getElementById('mainDisplay');
+  const history = document.getElementById('history');
+
+  // ─── Angle conversion ─────────────────────────────────────────
+  function toRad(x) {
+    if (angleMode === 'rad') return x;
+    if (angleMode === 'grad') return x * Math.PI / 200;
+    return x * Math.PI / 180; // deg
+  }
+  function fromRad(x) {
+    if (angleMode === 'rad') return x;
+    if (angleMode === 'grad') return x * 200 / Math.PI;
+    return x * 180 / Math.PI;
+  }
+
+  function setAngle(mode) {
+    angleMode = mode;
+    document.getElementById('degBtn').classList.toggle('active', mode === 'deg');
+    document.getElementById('radBtn').classList.toggle('active', mode === 'rad');
+    document.getElementById('gradBtn').classList.toggle('active', mode === 'grad');
+    document.getElementById('modeLabel').textContent = mode.toUpperCase();
+  }
+
+  // ─── Update display ──────────────────────────────────────────
+  function updateDisplay(value, isResult) {
+    display.className = 'display-main' + (isResult ? ' result' : '');
+    let formatted = String(value);
+    // Shorten very long decimals
+    if (!isNaN(formatted) && formatted.includes('.') && formatted.length > 14) {
+      formatted = parseFloat(value).toPrecision(10).replace(/\.?0+$/, '');
+    }
+    display.textContent = formatted || '0';
+  }
+
+  function showError(msg) {
+    display.className = 'display-main error';
+    display.textContent = msg;
+    setTimeout(() => updateDisplay(expression || '0', false), 1800);
+  }
+
+  // ─── Input helpers ────────────────────────────────────────────
+  function inputNum(n) {
+    if (justEvaluated) { expression = ''; justEvaluated = false; }
+    // Don't exceed reasonable length
+    if (expression.length > 40) return;
+    expression += n;
+    updateDisplay(expression, false);
+  }
+
+  function inputDot() {
+    if (justEvaluated) { expression = '0'; justEvaluated = false; }
+    // Find last number segment
+    const parts = expression.split(/[\+\-\*\/\^\(]/);
+    const last = parts[parts.length - 1];
+    if (last.includes('.')) return;
+    if (last === '' || expression === '') expression += '0';
+    expression += '.';
+    updateDisplay(expression, false);
+  }
+
+  function inputFn(fn) {
+    if (justEvaluated) {
+      // Allow chaining after result
+      if (['+','-','*','/','^','%'].includes(fn)) {
+        // keep expression as result for chaining
+      } else {
+        expression = '';
+      }
+      justEvaluated = false;
+    }
+    if (expression.length > 60) return;
+
+    if (fn === 'pi')  { expression += 'Math.PI'; }
+    else if (fn === 'e') { expression += 'Math.E'; }
+    else if (fn === 'x²') { expression += '^2'; }
+    else if (fn === '1/x') { expression = '1/(' + expression + ')'; }
+    else if (fn === 'EE') { expression += 'e'; } // scientific notation
+    else { expression += fn; }
+
+    updateDisplay(expression
+      .replace(/Math\.PI/g, 'π')
+      .replace(/Math\.E/g, 'e')
+      .replace(/\*/g, '×')
+      .replace(/\//g, '÷'), false);
+  }
+
+  function toggleSign() {
+    if (expression === '' || expression === '0') return;
+    if (expression.startsWith('-')) {
+      expression = expression.slice(1);
+    } else {
+      expression = '-' + expression;
+    }
+    updateDisplay(expression, false);
+  }
+
+  function backspace() {
+    if (justEvaluated) { expression = ''; justEvaluated = false; updateDisplay('0', false); return; }
+    expression = expression.slice(0, -1);
+    updateDisplay(expression || '0', false);
+  }
+
+  function allClear() {
+    expression = '';
+    justEvaluated = false;
+    history.textContent = '';
+    updateDisplay('0', false);
+  }
+
+  // ─── Factorial ────────────────────────────────────────────────
+  function factorial() {
+    try {
+      const val = parseFloat(eval(expression));
+      if (val < 0 || !Number.isInteger(val) || val > 170) { showError('Invalid'); return; }
+      let result = 1;
+      for (let i = 2; i <= val; i++) result *= i;
+      history.textContent = expression + '!';
+      expression = String(result);
+      justEvaluated = true;
+      updateDisplay(result, true);
+    } catch { showError('Error'); }
+  }
+
+  // ─── Memory ───────────────────────────────────────────────────
+  function memoryClear() { memory = 0; flashMemory('MC'); }
+  function memoryRecall() {
+    if (justEvaluated) { expression = ''; justEvaluated = false; }
+    expression += String(memory);
+    updateDisplay(expression, false);
+  }
+  function memoryStore() {
+    try { memory = parseFloat(eval(buildEvalStr(expression))); flashMemory('MS'); } catch {}
+  }
+  function memoryAdd() {
+    try { memory += parseFloat(eval(buildEvalStr(expression))); flashMemory('M+'); } catch {}
+  }
+  function memorySub() {
+    try { memory -= parseFloat(eval(buildEvalStr(expression))); flashMemory('M−'); } catch {}
+  }
+  function flashMemory(label) {
+    const old = history.textContent;
+    history.textContent = `MEM = ${memory}`;
+    setTimeout(() => { history.textContent = old; }, 1200);
+  }
+
+  // ─── Build evaluable string ───────────────────────────────────
+  function buildEvalStr(expr) {
+    return expr
+      // trig functions with angle conversion
+      .replace(/sin\(/g, `_sin(`)
+      .replace(/cos\(/g, `_cos(`)
+      .replace(/tan\(/g, `_tan(`)
+      .replace(/asin\(/g, `_asin(`)
+      .replace(/acos\(/g, `_acos(`)
+      .replace(/atan\(/g, `_atan(`)
+      .replace(/sqrt\(/g, `Math.sqrt(`)
+      .replace(/log\(/g, `Math.log10(`)
+      .replace(/ln\(/g, `Math.log(`)
+      .replace(/abs\(/g, `Math.abs(`)
+      .replace(/\^/g, `**`)
+      .replace(/%/g, `/100`);
+  }
+
+  // ─── Calculate ───────────────────────────────────────────────
+  function calculate() {
+    if (expression === '') return;
+
+    const rawExpr = expression;
+
+    try {
+      // Build safe eval scope
+      const evalStr = buildEvalStr(expression);
+
+      const result = (function() {
+        const _sin  = x => Math.sin(toRad(x));
+        const _cos  = x => Math.cos(toRad(x));
+        const _tan  = x => Math.tan(toRad(x));
+        const _asin = x => fromRad(Math.asin(x));
+        const _acos = x => fromRad(Math.acos(x));
+        const _atan = x => fromRad(Math.atan(x));
+
+        return eval(evalStr); // eslint-disable-line no-eval
+      })();
+
+      if (typeof result !== 'number' || !isFinite(result)) {
+        if (result === Infinity || result === -Infinity) {
+          showError('∞');
+        } else {
+          showError('Error');
+        }
+        return;
+      }
+
+      // Format result
+      let formatted = result;
+      if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-9 && result !== 0)) {
+        formatted = result.toExponential(6).replace(/\.?0+e/, 'e');
+      } else if (!Number.isInteger(result)) {
+        formatted = parseFloat(result.toPrecision(12));
+      }
+
+      history.textContent = rawExpr
+        .replace(/Math\.PI/g, 'π')
+        .replace(/Math\.E(?![a-z])/g, 'e')
+        .replace(/\*/g, '×')
+        .replace(/\//g, '÷') + ' =';
+
+      expression = String(result);
+      justEvaluated = true;
+      updateDisplay(formatted, true);
+
+      // Animate result
+      display.style.animation = 'none';
+      display.offsetHeight; // reflow
+      display.style.animation = 'resultFlash 0.5s ease forwards';
+
+    } catch(err) {
+      showError('Syntax Error');
+    }
+  }
+
+  // ─── Keyboard support ────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key >= '0' && e.key <= '9') inputNum(e.key);
+    else if (e.key === '.') inputDot();
+    else if (e.key === '+') inputFn('+');
+    else if (e.key === '-') inputFn('-');
+    else if (e.key === '*') inputFn('*');
+    else if (e.key === '/') { e.preventDefault(); inputFn('/'); }
+    else if (e.key === '^') inputFn('^');
+    else if (e.key === '(') inputFn('(');
+    else if (e.key === ')') inputFn(')');
+    else if (e.key === '%') inputFn('%');
+    else if (e.key === 'Enter' || e.key === '=') calculate();
+    else if (e.key === 'Backspace') backspace();
+    else if (e.key === 'Escape') allClear();
+  });
+
+  // ─── Ripple effect ────────────────────────────────────────────
+  document.querySelectorAll('.btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      const rect = this.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+      this.appendChild(r);
+      setTimeout(() => r.remove(), 500);
+    });
+  });
+</script>
+</body>
+</html>
