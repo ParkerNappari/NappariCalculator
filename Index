@@ -9,21 +9,24 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg: #0a0c10;
-    --surface: #111318;
-    --surface2: #181c24;
-    --border: #2a2f3d;
-    --accent: #00e5ff;
-    --accent2: #ff6b35;
-    --accent3: #b388ff;
-    --text: #e8eaf0;
-    --text-dim: #5a6070;
-    --btn-num: #181c24;
-    --btn-op: #1a1f2e;
-    --btn-fn: #141820;
-    --btn-eq: #003a45;
-    --glow: 0 0 12px rgba(0,229,255,0.35);
-    --glow2: 0 0 12px rgba(255,107,53,0.35);
+    --bg: #050B18;
+    --surface: #0A1A2F;
+    --surface2: #0D2040;
+    --border: #3A5F7A;
+    --border-dim: #1E3A52;
+    --accent: #2ECBFF;
+    --accent-bright: #5FDFFF;
+    --accent2: #1A8FBB;
+    --text: #E6F7FF;
+    --text-mid: #CFEFFF;
+    --text-dim: #3A5F7A;
+    --btn-num: #0A1A2F;
+    --btn-op: #0D2244;
+    --btn-fn: #071526;
+    --btn-eq: #082A40;
+    --glow: 0 0 14px rgba(46,203,255,0.4);
+    --glow-soft: 0 0 8px rgba(46,203,255,0.2);
+    --glow-bright: 0 0 20px rgba(95,223,255,0.5);
   }
 
   body {
@@ -34,17 +37,43 @@
     justify-content: center;
     font-family: 'Share Tech Mono', monospace;
     background-image:
-      radial-gradient(ellipse at 20% 80%, rgba(0,229,255,0.04) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 20%, rgba(179,136,255,0.04) 0%, transparent 50%);
+      radial-gradient(ellipse at 15% 85%, rgba(46,203,255,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(95,223,255,0.05) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(10,26,47,0.8) 0%, transparent 80%);
   }
 
   .calc-wrapper {
     position: relative;
-    padding: 2px;
+    padding: 1.5px;
     border-radius: 20px;
-    background: linear-gradient(135deg, rgba(0,229,255,0.3), rgba(179,136,255,0.1), rgba(255,107,53,0.1));
-    box-shadow: 0 0 60px rgba(0,229,255,0.1), 0 30px 80px rgba(0,0,0,0.6);
+    background: linear-gradient(135deg,
+      rgba(46,203,255,0.5) 0%,
+      rgba(46,203,255,0.1) 30%,
+      rgba(58,95,122,0.2) 60%,
+      rgba(46,203,255,0.3) 100%
+    );
+    box-shadow:
+      0 0 80px rgba(46,203,255,0.08),
+      0 0 40px rgba(46,203,255,0.05),
+      0 30px 80px rgba(0,0,0,0.7);
     animation: fadeIn 0.6s ease;
+  }
+
+  /* Subtle scan line overlay */
+  .calc-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(46,203,255,0.012) 2px,
+      rgba(46,203,255,0.012) 4px
+    );
+    pointer-events: none;
+    z-index: 10;
   }
 
   @keyframes fadeIn {
@@ -61,6 +90,27 @@
     position: relative;
   }
 
+  /* Corner decorations */
+  .calc::before, .calc::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-color: var(--accent);
+    border-style: solid;
+    opacity: 0.3;
+  }
+  .calc::before {
+    top: 10px; left: 10px;
+    border-width: 1px 0 0 1px;
+    border-radius: 4px 0 0 0;
+  }
+  .calc::after {
+    bottom: 10px; right: 10px;
+    border-width: 0 1px 1px 0;
+    border-radius: 0 0 4px 0;
+  }
+
   /* Header */
   .calc-header {
     display: flex;
@@ -75,21 +125,26 @@
     letter-spacing: 4px;
     color: var(--accent);
     text-transform: uppercase;
-    opacity: 0.7;
+    text-shadow: 0 0 10px rgba(46,203,255,0.6);
   }
   .mode-badge {
     font-size: 9px;
     letter-spacing: 2px;
-    color: var(--accent2);
-    opacity: 0.6;
+    color: var(--accent-bright);
+    opacity: 0.8;
     text-transform: uppercase;
     font-family: 'Orbitron', sans-serif;
+    background: rgba(46,203,255,0.08);
+    border: 1px solid rgba(46,203,255,0.25);
+    padding: 2px 8px;
+    border-radius: 4px;
   }
 
   /* Display */
   .display {
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-dim);
+    border-top-color: rgba(46,203,255,0.2);
     border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 20px;
@@ -99,8 +154,15 @@
   .display::before {
     content: '';
     position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(46,203,255,0.4), transparent);
+  }
+  .display::after {
+    content: '';
+    position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(0,229,255,0.03) 0%, transparent 60%);
+    background: linear-gradient(180deg, rgba(46,203,255,0.03) 0%, transparent 50%);
     pointer-events: none;
   }
   .display-history {
@@ -127,8 +189,11 @@
     transition: color 0.15s;
     letter-spacing: 1px;
   }
-  .display-main.error { color: var(--accent2); font-size: 20px; }
-  .display-main.result { color: var(--accent); }
+  .display-main.error { color: #FF6B6B; font-size: 20px; }
+  .display-main.result {
+    color: var(--accent-bright);
+    text-shadow: 0 0 16px rgba(95,223,255,0.6);
+  }
 
   /* Angle mode toggle */
   .angle-row {
@@ -140,7 +205,7 @@
     flex: 1;
     padding: 5px 0;
     background: var(--bg);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-dim);
     border-radius: 6px;
     color: var(--text-dim);
     font-family: 'Share Tech Mono', monospace;
@@ -151,10 +216,15 @@
     text-transform: uppercase;
   }
   .angle-btn.active {
-    background: rgba(0,229,255,0.08);
+    background: rgba(46,203,255,0.08);
     border-color: var(--accent);
     color: var(--accent);
-    box-shadow: var(--glow);
+    box-shadow: var(--glow-soft);
+    text-shadow: 0 0 8px rgba(46,203,255,0.5);
+  }
+  .angle-btn:hover:not(.active) {
+    border-color: #1E3A52;
+    color: var(--text-mid);
   }
 
   /* Button Grid */
@@ -169,10 +239,10 @@
     position: relative;
     padding: 0;
     height: 52px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-dim);
     border-radius: 10px;
     background: var(--btn-num);
-    color: var(--text);
+    color: var(--text-mid);
     font-family: 'Share Tech Mono', monospace;
     font-size: 14px;
     cursor: pointer;
@@ -197,16 +267,16 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(255,255,255,0);
+    background: rgba(46,203,255,0);
     transition: background 0.12s;
     border-radius: inherit;
   }
-  .btn:active::after { background: rgba(255,255,255,0.07); }
+  .btn:active::after { background: rgba(46,203,255,0.08); }
 
   .btn:hover {
-    border-color: rgba(90,96,112,0.8);
+    border-color: var(--border);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 6px rgba(46,203,255,0.08);
   }
   .btn:active {
     transform: translateY(0);
@@ -216,49 +286,63 @@
   /* Button variants */
   .btn.fn {
     background: var(--btn-fn);
-    color: var(--accent3);
+    color: #7ECFED;
     font-size: 12px;
-    border-color: rgba(179,136,255,0.15);
+    border-color: rgba(46,203,255,0.1);
   }
-  .btn.fn:hover { border-color: var(--accent3); box-shadow: 0 0 10px rgba(179,136,255,0.2); }
+  .btn.fn:hover {
+    border-color: rgba(46,203,255,0.35);
+    color: var(--accent-bright);
+    box-shadow: 0 0 10px rgba(46,203,255,0.15), 0 4px 14px rgba(0,0,0,0.4);
+  }
 
   .btn.op {
     background: var(--btn-op);
     color: var(--accent);
-    border-color: rgba(0,229,255,0.15);
+    border-color: rgba(46,203,255,0.2);
     font-size: 18px;
+    text-shadow: 0 0 8px rgba(46,203,255,0.4);
   }
-  .btn.op:hover { border-color: var(--accent); box-shadow: var(--glow); }
+  .btn.op:hover {
+    border-color: var(--accent);
+    box-shadow: var(--glow);
+    color: var(--accent-bright);
+  }
 
   .btn.eq {
-    background: var(--btn-eq);
-    color: var(--accent);
-    border-color: rgba(0,229,255,0.4);
+    background: linear-gradient(135deg, #082A40, #0D3D5A);
+    color: var(--accent-bright);
+    border-color: rgba(46,203,255,0.45);
     font-size: 22px;
     font-weight: bold;
-    box-shadow: inset 0 0 20px rgba(0,229,255,0.06);
+    box-shadow: inset 0 0 20px rgba(46,203,255,0.07);
+    text-shadow: 0 0 12px rgba(95,223,255,0.7);
   }
   .btn.eq:hover {
-    background: rgba(0,229,255,0.12);
-    border-color: var(--accent);
-    box-shadow: var(--glow), 0 4px 16px rgba(0,229,255,0.15);
+    background: linear-gradient(135deg, #0D3D5A, #114860);
+    border-color: var(--accent-bright);
+    box-shadow: var(--glow-bright), 0 4px 20px rgba(46,203,255,0.2);
   }
 
   .btn.clear {
-    background: #1a1218;
-    color: var(--accent2);
-    border-color: rgba(255,107,53,0.2);
+    background: #071018;
+    color: #FF8585;
+    border-color: rgba(255,100,100,0.2);
   }
-  .btn.clear:hover { border-color: var(--accent2); box-shadow: var(--glow2); }
+  .btn.clear:hover {
+    border-color: rgba(255,100,100,0.5);
+    box-shadow: 0 0 12px rgba(255,100,100,0.2), 0 4px 14px rgba(0,0,0,0.4);
+    color: #FF9999;
+  }
 
-  .btn.num { font-size: 18px; }
-  .btn.zero { }
+  .btn.num { font-size: 18px; color: var(--text); }
+  .btn.num:hover { color: var(--text-mid); }
 
   /* Ripple */
   .ripple {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255,255,255,0.12);
+    background: rgba(46,203,255,0.15);
     transform: scale(0);
     animation: ripple 0.4s ease-out forwards;
     pointer-events: none;
@@ -269,11 +353,9 @@
 
   /* Result flash */
   @keyframes resultFlash {
-    0% { color: var(--accent); }
-    100% { color: var(--text); }
+    0% { color: var(--accent-bright); text-shadow: 0 0 20px rgba(95,223,255,0.8); }
+    100% { color: var(--text); text-shadow: none; }
   }
-
-  .scrollbar-hide::-webkit-scrollbar { display: none; }
 </style>
 </head>
 <body>
@@ -350,7 +432,7 @@
       <button class="btn num" onclick="inputNum('0')" style="grid-column: span 2;">0</button>
       <button class="btn num" onclick="inputDot()">.</button>
       <button class="btn eq" onclick="calculate()">=</button>
-      <button class="btn fn" onclick="memoryClear()" style="color:#5a6070; font-size:11px;">MC</button>
+      <button class="btn fn" onclick="memoryClear()" style="color:#3A5F7A; font-size:11px;">MC</button>
 
       <!-- Row 9: Memory -->
       <button class="btn fn" onclick="memoryRecall()" style="font-size:11px;">MR</button>
@@ -363,20 +445,18 @@
 </div>
 
 <script>
-  // ─── State ────────────────────────────────────────────────────
   let expression = '';
   let justEvaluated = false;
-  let angleMode = 'deg'; // deg | rad | grad
+  let angleMode = 'deg';
   let memory = 0;
 
   const display = document.getElementById('mainDisplay');
   const history = document.getElementById('history');
 
-  // ─── Angle conversion ─────────────────────────────────────────
   function toRad(x) {
     if (angleMode === 'rad') return x;
     if (angleMode === 'grad') return x * Math.PI / 200;
-    return x * Math.PI / 180; // deg
+    return x * Math.PI / 180;
   }
   function fromRad(x) {
     if (angleMode === 'rad') return x;
@@ -392,11 +472,9 @@
     document.getElementById('modeLabel').textContent = mode.toUpperCase();
   }
 
-  // ─── Update display ──────────────────────────────────────────
   function updateDisplay(value, isResult) {
     display.className = 'display-main' + (isResult ? ' result' : '');
     let formatted = String(value);
-    // Shorten very long decimals
     if (!isNaN(formatted) && formatted.includes('.') && formatted.length > 14) {
       formatted = parseFloat(value).toPrecision(10).replace(/\.?0+$/, '');
     }
@@ -409,10 +487,8 @@
     setTimeout(() => updateDisplay(expression || '0', false), 1800);
   }
 
-  // ─── Input helpers ────────────────────────────────────────────
   function inputNum(n) {
     if (justEvaluated) { expression = ''; justEvaluated = false; }
-    // Don't exceed reasonable length
     if (expression.length > 40) return;
     expression += n;
     updateDisplay(expression, false);
@@ -420,7 +496,6 @@
 
   function inputDot() {
     if (justEvaluated) { expression = '0'; justEvaluated = false; }
-    // Find last number segment
     const parts = expression.split(/[\+\-\*\/\^\(]/);
     const last = parts[parts.length - 1];
     if (last.includes('.')) return;
@@ -431,23 +506,16 @@
 
   function inputFn(fn) {
     if (justEvaluated) {
-      // Allow chaining after result
-      if (['+','-','*','/','^','%'].includes(fn)) {
-        // keep expression as result for chaining
-      } else {
-        expression = '';
-      }
+      if (!['+','-','*','/','^','%'].includes(fn)) expression = '';
       justEvaluated = false;
     }
     if (expression.length > 60) return;
-
     if (fn === 'pi')  { expression += 'Math.PI'; }
     else if (fn === 'e') { expression += 'Math.E'; }
     else if (fn === 'x²') { expression += '^2'; }
     else if (fn === '1/x') { expression = '1/(' + expression + ')'; }
-    else if (fn === 'EE') { expression += 'e'; } // scientific notation
+    else if (fn === 'EE') { expression += 'e'; }
     else { expression += fn; }
-
     updateDisplay(expression
       .replace(/Math\.PI/g, 'π')
       .replace(/Math\.E/g, 'e')
@@ -457,11 +525,8 @@
 
   function toggleSign() {
     if (expression === '' || expression === '0') return;
-    if (expression.startsWith('-')) {
-      expression = expression.slice(1);
-    } else {
-      expression = '-' + expression;
-    }
+    if (expression.startsWith('-')) expression = expression.slice(1);
+    else expression = '-' + expression;
     updateDisplay(expression, false);
   }
 
@@ -478,7 +543,6 @@
     updateDisplay('0', false);
   }
 
-  // ─── Factorial ────────────────────────────────────────────────
   function factorial() {
     try {
       const val = parseFloat(eval(expression));
@@ -492,7 +556,6 @@
     } catch { showError('Error'); }
   }
 
-  // ─── Memory ───────────────────────────────────────────────────
   function memoryClear() { memory = 0; flashMemory('MC'); }
   function memoryRecall() {
     if (justEvaluated) { expression = ''; justEvaluated = false; }
@@ -514,10 +577,8 @@
     setTimeout(() => { history.textContent = old; }, 1200);
   }
 
-  // ─── Build evaluable string ───────────────────────────────────
   function buildEvalStr(expr) {
     return expr
-      // trig functions with angle conversion
       .replace(/sin\(/g, `_sin(`)
       .replace(/cos\(/g, `_cos(`)
       .replace(/tan\(/g, `_tan(`)
@@ -532,16 +593,11 @@
       .replace(/%/g, `/100`);
   }
 
-  // ─── Calculate ───────────────────────────────────────────────
   function calculate() {
     if (expression === '') return;
-
     const rawExpr = expression;
-
     try {
-      // Build safe eval scope
       const evalStr = buildEvalStr(expression);
-
       const result = (function() {
         const _sin  = x => Math.sin(toRad(x));
         const _cos  = x => Math.cos(toRad(x));
@@ -549,20 +605,14 @@
         const _asin = x => fromRad(Math.asin(x));
         const _acos = x => fromRad(Math.acos(x));
         const _atan = x => fromRad(Math.atan(x));
-
-        return eval(evalStr); // eslint-disable-line no-eval
+        return eval(evalStr);
       })();
 
       if (typeof result !== 'number' || !isFinite(result)) {
-        if (result === Infinity || result === -Infinity) {
-          showError('∞');
-        } else {
-          showError('Error');
-        }
+        showError(result === Infinity || result === -Infinity ? '∞' : 'Error');
         return;
       }
 
-      // Format result
       let formatted = result;
       if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-9 && result !== 0)) {
         formatted = result.toExponential(6).replace(/\.?0+e/, 'e');
@@ -580,9 +630,8 @@
       justEvaluated = true;
       updateDisplay(formatted, true);
 
-      // Animate result
       display.style.animation = 'none';
-      display.offsetHeight; // reflow
+      display.offsetHeight;
       display.style.animation = 'resultFlash 0.5s ease forwards';
 
     } catch(err) {
@@ -590,7 +639,6 @@
     }
   }
 
-  // ─── Keyboard support ────────────────────────────────────────
   document.addEventListener('keydown', e => {
     if (e.key >= '0' && e.key <= '9') inputNum(e.key);
     else if (e.key === '.') inputDot();
@@ -607,7 +655,6 @@
     else if (e.key === 'Escape') allClear();
   });
 
-  // ─── Ripple effect ────────────────────────────────────────────
   document.querySelectorAll('.btn').forEach(btn => {
     btn.addEventListener('click', function(e) {
       const r = document.createElement('span');
